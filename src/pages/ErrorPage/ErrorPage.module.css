@@ -1,0 +1,29 @@
+.container {
+  max-width: 700px;
+  margin: 25% auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.title {
+  font-size: 96px;
+}
+
+.description {
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.title,
+.description {
+  color: var(--primary-text-color);
+}
+
+@media screen and (min-width: 768px) {
+  .description {
+    font-size: 28px;
+  }
+}

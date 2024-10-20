@@ -1,0 +1,163 @@
+.container {
+  padding: 10px;
+  background: var(--secondary-bg-color);
+  backdrop-filter: blur(50px);
+  border-radius: 20px;
+}
+
+.head,
+.body {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+}
+
+.head {
+  font-weight: 400;
+}
+
+.body {
+  height: 65px;
+}
+
+.body:nth-child(even) {
+  background-color: rgb(255, 255, 255, 0.1);
+}
+
+.divider {
+  position: relative;
+  left: -10px;
+  width: calc(100% + 20px);
+  height: 1px;
+  background: var(--primary-border-color);
+}
+
+.button {
+  border: none;
+}
+
+.icon {
+  fill: var(--primary-text-color);
+}
+
+.button:hover .icon {
+  fill: var(--primary-border-color);
+  transition: fill 0.4s ease;
+}
+
+.pagination {
+  padding: 5px 15px;
+}
+
+.pagination:disabled {
+  color: var(--primary-border-color);
+  cursor: no-drop;
+}
+
+.pagination:hover {
+  border-color: var(--primary-text-color);
+  transition: border-color 0.5s ease;
+}
+
+.pagination:disabled:hover {
+  border-color: inherit;
+}
+
+.buttonsPag {
+  justify-content: center;
+  align-items: end;
+}
+
+.grid {
+  height: 730px;
+}
+
+.container,
+.pagination {
+  border: 1px solid var(--primary-border-color);
+}
+
+.head,
+.body,
+.pagination {
+  color: var(--primary-text-color);
+}
+
+.head,
+.divider {
+  margin-bottom: 15px;
+}
+
+.body,
+.pagination {
+  border-radius: 10px;
+}
+
+.button,
+.pagination {
+  background: none;
+}
+
+.buttons,
+.buttonsPag {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.income {
+  background: rgba(61, 172, 145, 0.5);
+}
+
+.expense {
+  background: rgba(252, 128, 128, 0.5);
+}
+
+.income,
+.expense {
+  padding: 5px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  max-width: 80px;
+}
+
+.head span,
+.body span {
+  font-size: 18px;
+}
+
+.body > :nth-child(5) {
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.message {
+  color: var(--primary-text-color);
+}
+
+@media screen and (max-width: 768px) {
+  .head,
+  .body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .head > :nth-child(3),
+  .head > :nth-child(5),
+  .body > :nth-child(3),
+  .body > :nth-child(5) {
+    display: none;
+  }
+
+  .head span,
+  .body span {
+    font-size: 14px;
+  }
+
+  .buttons,
+  .buttonsPag {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
