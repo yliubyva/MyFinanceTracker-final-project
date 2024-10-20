@@ -1,0 +1,23 @@
+.container {
+    margin: 20px auto 0;
+    max-width: 740px;
+    padding: 0 15px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.logo {
+  height: auto;
+  width: 250px;
+}
+
+@media screen and (min-width: 768px) {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+

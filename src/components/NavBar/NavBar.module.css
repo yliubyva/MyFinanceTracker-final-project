@@ -1,0 +1,70 @@
+.navigation {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  background: var(--primary-bg-color);
+  border: 1px solid var(--primary-border-color);
+  box-shadow: 0 4px 8px 0 rgba(70, 70, 70, 0.2);
+  padding: 10px;
+  border-radius: 30px;
+  display: flex;
+  gap: 20px;
+  z-index: 10;
+}
+
+.unshow {
+  left: -300px;
+}
+
+.show {
+  left: 15px;
+}
+
+.unshow,
+.show {
+    transition: left 0.5s ease;
+}
+
+.navPages {
+  position: relative;
+}
+
+.navPages::after {
+  content: "";
+  width: 1px;
+  height: calc(100% + 20px);
+  position: absolute;
+  top: -10px;
+  left: 120%;
+  background: var(--primary-border-color);
+}
+
+.navPages,
+.settings {
+  display: flex;
+  gap: 10px;
+}
+
+.icon {
+  fill: var(--primary-text-color);
+  width: 30px;
+  height: 30px;
+}
+
+.link:hover .icon,
+.active > .icon {
+  fill: var(--primary-border-color);
+  transition: fill 0.3s ease-in-out;
+}
+
+@media screen and (min-width: 768px) {
+  .navigation {
+    position: relative;
+    top: 0;
+    box-shadow: none;
+  }
+
+  .unshow {
+    left: 0;
+  }
+}
