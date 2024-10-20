@@ -1,0 +1,61 @@
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.title {
+  text-align: left;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+h1,
+.title,
+.text {
+    color: var(--primary-text-color);
+}
+
+.chartPie,
+.chartLine {
+  background: var(--chart-bg-color);
+  border-radius: 20px;
+  padding: 5px;
+  border: 1px solid var(--primary-border-color);
+}
+
+.summary,
+.doughnuts {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.stat1,
+.stat2,
+.stat3 {
+  align-self: center;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media screen and (min-width: 768px) {
+  h1 {
+    font-size: 38px;
+  }
+
+  .title {
+    font-size: 34px;
+  }
+}

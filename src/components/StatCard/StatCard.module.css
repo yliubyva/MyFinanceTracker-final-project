@@ -1,0 +1,32 @@
+.card {
+    background: var(--secondary-bg-color);
+    border-radius: 20px;
+    padding: 10px;
+    width: 100%;
+    height: auto;
+    max-width: 300px;
+    border: 1px solid var(--primary-border-color);
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.info {
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.title,
+.info {
+    color: var(--primary-text-color);
+}

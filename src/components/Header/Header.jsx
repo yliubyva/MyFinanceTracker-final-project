@@ -1,8 +1,10 @@
-import { ThemeOption } from "../ThemeOption/ThemeOption";
+import { ThemeOption } from "../ThemeOption";
 import styles from "./Header.module.css";
 import { NavBar } from "../NavBar/NavBar";
-import { BurgerButton } from "../BurgerButton/BurgerButton";
+import { BurgerButton } from "../BurgerButton";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
+import { Routes } from "../../constants";
 
 export const Header = () => {
     const [isNavOpen, setIsNavOpen] = useState(false);
@@ -15,7 +17,10 @@ export const Header = () => {
         <header>
             <div className={styles.container}>
                 <div className={styles.containerLogo}>
-                    <img src="/logo-dark.svg" alt="logo" className={styles.logo} />
+                    <NavLink to={Routes.HOME}>
+                        <img src="/logo-dark.svg" alt="logo" className={styles.logo} />
+                    </NavLink>
+
                 </div>
                 <ThemeOption isOpen={isNavOpen} />
                 <NavBar isOpen={isNavOpen} />

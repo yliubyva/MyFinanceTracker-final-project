@@ -1,0 +1,7 @@
+.container {
+    border: 1px solid var(--primary-border-color);
+    background: var(--secondary-bg-color);
+    border-radius: 20px;
+    width: 100%;
+    height: auto;
+}
