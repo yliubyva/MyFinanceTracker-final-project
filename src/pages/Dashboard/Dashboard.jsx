@@ -24,6 +24,24 @@ export const Dashboard = () => {
     const [monthlyTotals, setMonthlyTotals] = useState([]);
     const [isOpenFilters, setIsOpenFilters] = useState(false);
 
+    const monthOrder = {
+        'January': 1,
+        'February': 2,
+        'March': 3,
+        'April': 4,
+        'May': 5,
+        'June': 6,
+        'July': 7,
+        'August': 8,
+        'September': 9,
+        'October': 10,
+        'November': 11,
+        'December': 12
+    };
+
+    const sortedMonthlyTotals = monthlyTotals.sort((a, b) => monthOrder[a.month] - monthOrder[b.month]);
+
+
     const toggleFilters = () => {
         setIsOpenFilters(!isOpenFilters);
     }
@@ -66,19 +84,23 @@ export const Dashboard = () => {
     const handleTypeChange = (event) => setType(event.target.value);
     const handleCurrencyChange = (event) => setSelectedCurrency(event.target.value);
 
+    const formattedBalance = currencyService.formatCurrency(convertCurrency(balance, selectedCurrency), selectedCurrency);
+    const formattedIncome = currencyService.formatCurrency(convertCurrency(totalIncome, selectedCurrency), selectedCurrency);
+    const formatedExpenses = currencyService.formatCurrency(convertCurrency(totalExpenses, selectedCurrency), selectedCurrency);
+
     const monthlyChartData = {
-        labels: monthlyTotals.map(item => item.month),
+        labels: sortedMonthlyTotals.map(item => item.month),
         datasets: [
             {
                 label: 'Income',
-                data: monthlyTotals.map(item => item.income),
+                data: sortedMonthlyTotals.map(item => item.income),
                 backgroundColor: 'rgba(61, 172, 145, 1)',
                 borderColor: 'rgba(255, 255, 255, 0.1)',
                 borderWidth: 1,
             },
             {
                 label: 'Expenses',
-                data: monthlyTotals.map(item => item.expenses),
+                data: sortedMonthlyTotals.map(item => item.expenses),
                 backgroundColor: 'rgba(252, 128, 128, 1)',
                 borderColor: 'rgba(255, 255, 255, 0.1)',
                 borderWidth: 1,
@@ -211,16 +233,12 @@ export const Dashboard = () => {
         },
     };
 
-    const formattedBalance = currencyService.formatCurrency(convertCurrency(balance, selectedCurrency), selectedCurrency);
-    const formattedIncome = currencyService.formatCurrency(convertCurrency(totalIncome, selectedCurrency), selectedCurrency);
-    const formatedExpenses = currencyService.formatCurrency(convertCurrency(totalExpenses, selectedCurrency), selectedCurrency);
-
     return (
         <div>
             <h1>Manage Your Finances</h1>
             <div className={styles.group}>
                 <h2 className={styles.title}>My Dashboard</h2>
-                <Filters 
+                <Filters
                     onClick={toggleFilters}
                     isOpen={isOpenFilters}
                     timePeriod={timePeriod}
@@ -249,15 +267,15 @@ export const Dashboard = () => {
                             loading={loading} />
                     </div>
                 </div>
-    
+
                 <div className={styles.stat4}>
                     <ChartContainer data={barChartData} options={options} type="bar" />
                 </div>
-    
+
                 <div className={styles.stat5}>
                     <ChartContainer data={monthlyChartData} options={optionsMonthly} type="bar" />
                 </div>
-    
+
                 <div className={styles.doughnuts}>
                     <div className={styles.stat6}>
                         <ChartContainer data={doughnutChartData} options={optionsTotalCategories} type="doughnut" />

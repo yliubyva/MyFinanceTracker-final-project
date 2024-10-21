@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from "./ThemeOption.module.css";
 import LightIcon from "../../assets/Light.svg?react";
 import DarkIcon from "../../assets/Dark.svg?react";
@@ -7,8 +7,15 @@ import PropTypes from 'prop-types';
 export const ThemeOption = ({ isOpen }) => {
     const [theme, setTheme] = useState('light');
 
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+        document.querySelector('body').setAttribute('data-theme', savedTheme);
+    }, []);
+
     const toggleTheme = (selectedTheme) => {
         setTheme(selectedTheme);
+        localStorage.setItem('theme', selectedTheme);
         document.querySelector('body').setAttribute('data-theme', selectedTheme);
     }
 

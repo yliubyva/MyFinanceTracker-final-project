@@ -8,6 +8,7 @@ import SearchIcon from "../../assets/Search.svg?react";
 import AddIcon from "../../assets/Add.svg?react";
 import styles from "./Transactions.module.css";
 
+
 export const Transactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,35 +40,26 @@ export const Transactions = () => {
     useEffect(() => {
         let filtered = [...transactions];
 
-        if (filterType) {
-            filtered = filtered.filter(transaction => transaction.transaction_type === filterType);
-        }
-
-        if (filterCategory) {
-            filtered = filtered.filter(transaction => transaction.category === filterCategory);
-        }
-
         if (searchQuery) {
             filtered = filtered.filter(transaction => {
                 const matchesCategory = transaction.category.toLowerCase().includes(searchQuery.toLowerCase());
                 const matchesType = transaction.transaction_type.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesNotes = transaction.notes.toLowerCase().includes(searchQuery.toLowerCase());
 
-                const transactionDate = new Date(transaction.date).toISOString().split('T')[0];
+                const transactionDate = new Date(transaction.date).toLocaleDateString('en-CA');
                 const matchesDate = transactionDate.includes(searchQuery);
 
                 const matchesAmount = transaction.amount.toString().includes(searchQuery);
 
-                return matchesCategory || matchesType || matchesDate || matchesAmount;
+                return matchesCategory || matchesType || matchesDate || matchesAmount || matchesNotes;
             });
         }
 
 
         setFilteredTransactions(filtered);
-    }, [filterType, filterCategory, searchQuery, transactions]);
+    }, [searchQuery, transactions]);
 
     const resetFilters = () => {
-        setFilterType("");
-        setFilterCategory("");
         setFilteredTransactions(transactions);
     }
 

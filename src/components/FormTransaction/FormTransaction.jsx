@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import styles from "./FormTransaction.module.css";
 import { categories, currencies } from "../../constants";
 
+
+
 export const FormTransaction = ({ onSave, transaction }) => {
 
     const [date, setDate] = useState(transaction?.date || "");
@@ -14,7 +16,7 @@ export const FormTransaction = ({ onSave, transaction }) => {
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [errors, setErrors] = useState({});
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString('en-CA');
 
     useEffect(() => {
         if(type) {

@@ -5,7 +5,7 @@ export const Routes = {
 
 export const categories = {
     income: ["salary", "bonuses", "investments", "other"],
-    expense: ["groceries", "utilities", "transport", "other"],
+    expense: ["groceries", "housing", "utilities", "transport", "entertainment", "other"],
 };
 
 export const currencies = ["USD", "EUR", "UAH"];
