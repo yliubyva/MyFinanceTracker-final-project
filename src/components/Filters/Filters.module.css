@@ -82,6 +82,13 @@
   color: var(--primary-text-color);
   margin-top: 10px;
   border: 1px solid var(--primary-border-color);
+  outline: none;
+  cursor: pointer;
+}
+
+.select:hover {
+  border: 1px solid var(--secondary-border-color);
+  transition: border 0.5s ease;
 }
 
 .div {

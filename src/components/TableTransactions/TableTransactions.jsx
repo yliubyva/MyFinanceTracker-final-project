@@ -6,8 +6,7 @@ import EditIcon from "../../assets/Edit.svg?react";
 import DeleteIcon from "../../assets/Delete.svg?react";
 import styles from "./TableTransactions.module.css";
 
-
-export const TableTransactions = ({ transaction, noResultsMessage, loading, onDelete, onEdit }) => {
+export const TableTransactions = ({ transaction, noResults, loading, onDelete, onEdit }) => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const sortedTransactions = [...transaction].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -23,7 +22,6 @@ export const TableTransactions = ({ transaction, noResultsMessage, loading, onDe
 
     const currentTransacrion = sortedTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
 
-
     const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
     const handlePrevPage = () => {
@@ -36,10 +34,6 @@ export const TableTransactions = ({ transaction, noResultsMessage, loading, onDe
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         }
-    }
-
-    if (transaction.length === 0) {
-        return <p className={styles.message}>{noResultsMessage}</p>;
     }
 
     return (
@@ -55,7 +49,11 @@ export const TableTransactions = ({ transaction, noResultsMessage, loading, onDe
                 </div>
                 <div className={styles.divider}></div>
                 {loading ? (
-                    <Loader />
+                    <div className={styles.loaderContainer}>
+                        <Loader width={150} height={150} />
+                    </div>
+                ) : noResults ? (
+                    <p className={styles.message}>No transactions found.</p>
                 ) : (
                     <div className={styles.row}>
                         {currentTransacrion.map((operation, index) => (
@@ -125,6 +123,7 @@ TableTransactions.propTypes = {
         })
     ),
     loading: PropTypes.bool,
+    noResults: PropTypes.bool,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func,
 }

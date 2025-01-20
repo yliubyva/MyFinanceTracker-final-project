@@ -24,6 +24,7 @@
     height: 45px;
     padding: 10px;
     background: var(--secondary-bg-color);
+    outline: none;
 }
 
 .title,

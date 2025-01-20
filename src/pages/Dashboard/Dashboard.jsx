@@ -90,18 +90,18 @@ export const Dashboard = () => {
             <div className={styles.grid}>
                 <div className={styles.summary}>
                     <StatCard label="Income"
-                        value={loading ? <Loader /> : formattedIncome}
+                        value={formattedIncome}
                         loading={loading}
                     />
                     <div className={styles.center}>
                         <StatCard label="Expenses"
-                            value={loading ? <Loader /> : formatedExpenses}
+                            value={formatedExpenses}
                             loading={loading}
                         />
                     </div>
                     <div className={styles.end}>
                         <StatCard label="Balance"
-                            value={loading ? <Loader /> : formattedBalance}
+                            value={formattedBalance}
                             loading={loading}
                         />
                     </div>

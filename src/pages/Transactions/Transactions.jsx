@@ -8,7 +8,6 @@ import SearchIcon from "../../assets/Search.svg?react";
 import AddIcon from "../../assets/Add.svg?react";
 import styles from "./Transactions.module.css";
 
-
 export const Transactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,15 +17,28 @@ export const Transactions = () => {
     const [filterType, setFilterType] = useState("");
     const [filterCategory, setFilterCategory] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
-    // const [error, setError] = useState(null);
+    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [noResults, setNoResults] = useState(false);
 
     useEffect(() => {
+        setLoading(true);
+        setNoResults(false);
+        setError(null);
         const getTransactions = async () => {
             try {
                 const { data, error } = await supabaseService.fetchTransactions();
-                setTransactions(data);
-                setFilteredTransactions(data);
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                if (data.length === 0) {
+                    setNoResults(true);
+                } else {
+                    setTransactions(data);
+                    setFilteredTransactions(data);
+                }
             } catch (error) {
                 console.error("Error fetching data:", error)
             } finally {
@@ -55,8 +67,13 @@ export const Transactions = () => {
             });
         }
 
-
         setFilteredTransactions(filtered);
+
+        if (filtered.length === 0) {
+            setNoResults(true);
+        } else {
+            setNoResults(false);
+        }
     }, [searchQuery, transactions]);
 
     const resetFilters = () => {
@@ -135,7 +152,7 @@ export const Transactions = () => {
 
             <TableTransactions
                 transaction={filteredTransactions}
-                noResultsMessage="No transactions found."
+                noResults={noResults}
                 onTypeFilter={setFilterType}
                 onCategoryFilter={setFilterCategory}
                 resetFilters={resetFilters}
