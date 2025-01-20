@@ -38,12 +38,6 @@ h1,
   margin-bottom: 30px;
 }
 
-.stat1,
-.stat2,
-.stat3 {
-  align-self: center;
-}
-
 .grid {
   display: flex;
   flex-direction: column;
@@ -57,5 +51,20 @@ h1,
 
   .title {
     font-size: 34px;
+  }
+
+  .center {
+    justify-self: center;
+  }
+
+  .center,
+  .end {
+    min-width: 208px;
+    max-width: 300px;
+    width: 100%;
+  }
+  
+  .end {
+    justify-self: end;
   }
 }
