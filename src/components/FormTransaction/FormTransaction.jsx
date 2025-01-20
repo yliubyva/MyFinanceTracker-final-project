@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import styles from "./FormTransaction.module.css";
 import { categories, currencies } from "../../constants";
 
-
-
 export const FormTransaction = ({ onSave, transaction }) => {
-
     const [date, setDate] = useState(transaction?.date || "");
     const [amount, setAmount] = useState(transaction?.amount || "");
     const [type, setType] = useState(transaction?.transaction_type || "");
@@ -186,7 +183,6 @@ export const FormTransaction = ({ onSave, transaction }) => {
             <div>
                 <button className={styles.save} type="submit">save</button>
             </div>
-
         </form>
     )
 }

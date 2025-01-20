@@ -4,7 +4,6 @@
     padding: 10px;
     width: 100%;
     height: auto;
-    max-width: 300px;
     border: 1px solid var(--primary-border-color);
 }
 
@@ -29,4 +28,10 @@
 .title,
 .info {
     color: var(--primary-text-color);
+} 
+
+@media screen and (min-width: 768px) {
+    .card {
+        max-width: 300px;
+    }
 }

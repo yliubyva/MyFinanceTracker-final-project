@@ -1,7 +1,6 @@
 .field {
     width: 100%;
     display: grid;
-    /* grid-template-columns: 1fr 1fr; */
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     justify-content: space-between;
     gap: 10px;
@@ -35,6 +34,12 @@
 .textarea {
     padding: 10px;
     font-size: 14px;
+}
+
+.input,
+.select,
+.textarea {
+    outline: none;
 }
 
 .error {
