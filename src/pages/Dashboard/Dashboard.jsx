@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabaseService } from "../../services/supabaseService";
-import { Loader } from "../../components/Loader";
 import styles from "./Dashboard.module.css";
 import { StatCard } from "../../components/StatCard";
 import { currencyService } from "../../services/currencyService";
@@ -11,27 +10,35 @@ import { ChartBar } from "../../components/Charts";
 import { monthOrder } from "../../constants";
 
 export const Dashboard = () => {
-    const [totalIncome, setTotalIncome] = useState(0);
-    const [totalExpenses, setTotalExpenses] = useState(0);
-    const [balance, setBalance] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [timePeriod, setTimePeriod] = useState('7');
-    const [type, setType] = useState('all');
-    const [categoryData, setCategoryData] = useState({});
-    const [selectedCurrency, setSelectedCurrency] = useState('USD');
-    const [exchangeRates, setExchangeRates] = useState({});
-    const [monthlyTotals, setMonthlyTotals] = useState([]);
     const [isOpenFilters, setIsOpenFilters] = useState(false);
+    const [financials, setFinancials] = useState({
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: 0,
+    });
 
-    const sortedMonthlyTotals = monthlyTotals.sort((a, b) => monthOrder[a.month] - monthOrder[b.month]);
+    const [filters, setFilters] = useState({
+        timePeriod: '7',
+        type: 'all',
+        selectedCurrency: 'USD',
+    });
+
+    const [data, setData] = useState({
+        categoryData: {},
+        exchangeRates: {},
+        monthlyTotals: [],
+    });
+
+    const sortedMonthlyTotals = data.monthlyTotals.sort((a, b) => monthOrder[a.month] - monthOrder[b.month]);
 
     const toggleFilters = () => {
         setIsOpenFilters(!isOpenFilters);
     }
 
     const convertCurrency = (amount, selectedCurrency) => {
-        if (!exchangeRates || !exchangeRates[selectedCurrency]) return amount;
-        const rate = exchangeRates[selectedCurrency];
+        if (!data.exchangeRates || !data.exchangeRates[selectedCurrency]) return amount;
+        const rate = data.exchangeRates[selectedCurrency];
         return amount * rate;
     };
 
@@ -39,20 +46,25 @@ export const Dashboard = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const rates = await currencyService.fetchExchangeRates();
-                setExchangeRates(rates);
+                const rates = await currencyService.fetchExchangeRates();                
+                setData((prev) => ({...prev, exchangeRates: rates}));
 
-                const transactions = await supabaseService.fetchFilteredTransactions(timePeriod, type);
+                const transactions = await supabaseService.fetchFilteredTransactions(filters.timePeriod, filters.type);
                 const { income, expenses } = transactionService.calculateTotals(transactions);
-                setTotalIncome(income);
-                setTotalExpenses(expenses);
-                setBalance(income - expenses);
+                setFinancials({
+                    totalIncome: income,
+                    totalExpenses: expenses,
+                    balance: income - expenses,
+                });
 
                 const categoryTotals = transactionService.calculateCategoryData(transactions);
-                setCategoryData(categoryTotals);
 
                 const monthlyTotals = transactionService.calculateMonthlyTotals(transactions);
-                setMonthlyTotals(monthlyTotals);
+                setData((prev) => ({
+                    ...prev,
+                    categoryData: categoryTotals,
+                    monthlyTotals: monthlyTotals,
+                }));
             } catch (error) {
                 console.error("Error fetching data: ", error);
             } finally {
@@ -61,15 +73,15 @@ export const Dashboard = () => {
         };
 
         fetchData();
-    }, [timePeriod, type, selectedCurrency]);
+    }, [filters.timePeriod, filters.type, filters.selectedCurrency]);
 
-    const handleTimeChange = (event) => setTimePeriod(event.target.value);
-    const handleTypeChange = (event) => setType(event.target.value);
-    const handleCurrencyChange = (event) => setSelectedCurrency(event.target.value);
+    const handleTimeChange = (e) => setFilters((prev) => ({...prev, timePeriod: e.target.value}));
+    const handleTypeChange = (e) => setFilters((prev) => ({...prev, type: e.target.value}));
+    const handleCurrencyChange = (e) => setFilters((prev) => ({...prev, selectedCurrency: e.target.value}));
 
-    const formattedBalance = currencyService.formatCurrency(convertCurrency(balance, selectedCurrency), selectedCurrency);
-    const formattedIncome = currencyService.formatCurrency(convertCurrency(totalIncome, selectedCurrency), selectedCurrency);
-    const formatedExpenses = currencyService.formatCurrency(convertCurrency(totalExpenses, selectedCurrency), selectedCurrency);
+    const formattedBalance = currencyService.formatCurrency(convertCurrency(financials.balance, filters.selectedCurrency), filters.selectedCurrency);
+    const formattedIncome = currencyService.formatCurrency(convertCurrency(financials.totalIncome, filters.selectedCurrency), filters.selectedCurrency);
+    const formatedExpenses = currencyService.formatCurrency(convertCurrency(financials.totalExpenses, filters.selectedCurrency), filters.selectedCurrency);
 
     return (
         <div>
@@ -79,9 +91,9 @@ export const Dashboard = () => {
                 <Filters
                     onClick={toggleFilters}
                     isOpen={isOpenFilters}
-                    timePeriod={timePeriod}
-                    type={type}
-                    selectedCurrency={selectedCurrency}
+                    timePeriod={filters.timePeriod}
+                    type={filters.type}
+                    selectedCurrency={filters.selectedCurrency}
                     onChangeTime={handleTimeChange}
                     onChangeType={handleTypeChange}
                     onChangeCurrency={handleCurrencyChange}
@@ -111,7 +123,7 @@ export const Dashboard = () => {
                     datasets={[
                         {
                             label: 'Finance Overview',
-                            data: [totalIncome, totalExpenses],
+                            data: [financials.totalIncome, financials.totalExpenses],
                             backgroundColor: [
                                 'rgba(61, 172, 145, 1)',
                                 'rgba(252, 128, 128, 1)',
@@ -146,28 +158,28 @@ export const Dashboard = () => {
                 <div className={styles.doughnuts}>
                     <ChartDoughnut
                         labels={[
-                            ...(categoryData.expenseTotals ? Object.keys(categoryData.expenseTotals) : []),
-                            ...(categoryData.incomeTotals ? Object.keys(categoryData.incomeTotals) : [])
+                            ...(data.categoryData.expenseTotals ? Object.keys(data.categoryData.expenseTotals) : []),
+                            ...(data.categoryData.incomeTotals ? Object.keys(data.categoryData.incomeTotals) : [])
                         ]}
                         titleChart='Category Breakdown'
                         dataForChart={[
-                            ...(categoryData.expenseTotals ? Object.values(categoryData.expenseTotals) : []),
-                            ...(categoryData.incomeTotals ? Object.values(categoryData.incomeTotals) : [])
+                            ...(data.categoryData.expenseTotals ? Object.values(data.categoryData.expenseTotals) : []),
+                            ...(data.categoryData.incomeTotals ? Object.values(data.categoryData.incomeTotals) : [])
                         ]}
                         titleOptions='Financial Breakdown by Category'
                     />
 
                     <ChartDoughnut
-                        labels={[...(categoryData.expenseTotals ? Object.keys(categoryData.expenseTotals) : []),]}
+                        labels={[...(data.categoryData.expenseTotals ? Object.keys(data.categoryData.expenseTotals) : []),]}
                         titleChart='Expenses Breakdown'
-                        dataForChart={[...(categoryData.expenseTotals ? Object.values(categoryData.expenseTotals) : []),]}
+                        dataForChart={[...(data.categoryData.expenseTotals ? Object.values(data.categoryData.expenseTotals) : []),]}
                         titleOptions='Expense Breakdown by Category'
                     />
 
                     <ChartDoughnut
-                        labels={[...(categoryData.incomeTotals ? Object.keys(categoryData.incomeTotals) : []),]}
+                        labels={[...(data.categoryData.incomeTotals ? Object.keys(data.categoryData.incomeTotals) : []),]}
                         titleChart='Income Breakdown'
-                        dataForChart={[...(categoryData.incomeTotals ? Object.values(categoryData.incomeTotals) : []),]}
+                        dataForChart={[...(data.categoryData.incomeTotals ? Object.values(data.categoryData.incomeTotals) : []),]}
                         titleOptions='Income Breakdown by Category'
                     />
                 </div>

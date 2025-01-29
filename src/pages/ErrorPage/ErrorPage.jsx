@@ -1,5 +1,4 @@
 import styles from "./ErrorPage.module.css";
-import { Button } from "../../components/Button";
 import { Background } from "../../components/Background";
 import { NavLink } from "react-router-dom";
 import { Routes } from "../../constants";

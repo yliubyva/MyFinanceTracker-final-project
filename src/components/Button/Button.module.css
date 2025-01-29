@@ -1,5 +1,4 @@
 .button {
-    background: none;
     border: 1px solid var(--primary-border-color);
     border-radius: 20px;
     color: var(--primary-text-color);
@@ -14,4 +13,3 @@
     border: 1px solid var(--secondary-border-color);
     transition: border 0.5s ease;
 }
-

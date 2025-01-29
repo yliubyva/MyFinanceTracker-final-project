@@ -7,24 +7,49 @@ import { Button } from "../../components/Button";
 import SearchIcon from "../../assets/Search.svg?react";
 import AddIcon from "../../assets/Add.svg?react";
 import styles from "./Transactions.module.css";
+import { Confirmation } from "../../components/Confirmation/Confirmation";
 
 export const Transactions = () => {
-    const [transactions, setTransactions] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditOpenModal, setIsEditModalOpen] = useState(false);
-    const [transactionToEdit, setTransactionToEdit] = useState(null);
-    const [filteredTransactions, setFilteredTransactions] = useState([]);
-    const [filterType, setFilterType] = useState("");
-    const [filterCategory, setFilterCategory] = useState("");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [noResults, setNoResults] = useState(false);
+    const [modals, setModals] = useState({
+        isAddModalOpen: false,
+        isEditModalOpen: false,
+        isConfirmationModalOpen: false,
+    });
+
+    const [filters, setFilters] = useState({
+        filterType: "",
+        filterCategory: "",
+        searchQuery: "",
+    });
+
+    const [transactionData, setTransactionData] = useState({
+        transactions: [],
+        filteredTransactions: [],
+        transactionToEdit: null,
+        transactionIdToDelete: null,
+    });
+
+    const [status, setStatus] = useState({
+        loading: true,
+        error: null,
+        noResults: false,
+    });
+
+    const openModal = (modalName) => {
+        setModals((prev) => ({...prev, [modalName]: true}));
+    };
+
+    const closeModal = (modalName) => {
+        setModals((prev) => ({...prev, [modalName]: false}));
+    };
 
     useEffect(() => {
-        setLoading(true);
-        setNoResults(false);
-        setError(null);
+        setStatus((prev) => ({
+            ...prev,
+            loading: true,
+            error: null,
+            noResults: false,
+        }))
         const getTransactions = async () => {
             try {
                 const { data, error } = await supabaseService.fetchTransactions();
@@ -34,15 +59,18 @@ export const Transactions = () => {
                 }
 
                 if (data.length === 0) {
-                    setNoResults(true);
+                    setStatus((prev) => ({ ...prev, noResults: true }))
                 } else {
-                    setTransactions(data);
-                    setFilteredTransactions(data);
+                    setTransactionData((prev) => ({
+                        ...prev,
+                        transactions: data,
+                        filteredTransactions: data,
+                    }))
                 }
             } catch (error) {
                 console.error("Error fetching data:", error)
             } finally {
-                setLoading(false);
+                setStatus((prev) => ({ ...prev, loading: false }))
             }
         }
 
@@ -50,40 +78,37 @@ export const Transactions = () => {
     }, []);
 
     useEffect(() => {
-        let filtered = [...transactions];
+        let filtered = [...transactionData.transactions]; 
 
-        if (searchQuery) {
+        if (filters.searchQuery) {
             filtered = filtered.filter(transaction => {
-                const matchesCategory = transaction.category.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchesType = transaction.transaction_type.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchesNotes = transaction.notes.toLowerCase().includes(searchQuery.toLowerCase());
+                const query = filters.searchQuery.toLowerCase();
 
-                const transactionDate = new Date(transaction.date).toLocaleDateString('en-CA');
-                const matchesDate = transactionDate.includes(searchQuery);
-
-                const matchesAmount = transaction.amount.toString().includes(searchQuery);
-
-                return matchesCategory || matchesType || matchesDate || matchesAmount || matchesNotes;
+                return (
+                    transaction.category.toLowerCase().includes(query) ||
+                    transaction.transaction_type.toLowerCase().includes(query) ||
+                    transaction.notes.toLowerCase().includes(query) ||
+                    new Date(transaction.date).toLocaleDateString('en-CA').includes(query) ||
+                    transaction.amount.toString().includes(query)
+                )
             });
         }
 
-        setFilteredTransactions(filtered);
-
-        if (filtered.length === 0) {
-            setNoResults(true);
-        } else {
-            setNoResults(false);
-        }
-    }, [searchQuery, transactions]);
+        setTransactionData((prev) => ({ ...prev, filteredTransactions: filtered }))
+        setStatus((prev) => ({...prev, noResults: filtered.length === 0}));
+    }, [filters.searchQuery, transactionData.transactions]);
 
     const resetFilters = () => {
-        setFilteredTransactions(transactions);
+        setTransactionData((prev) => ({
+            ...prev,
+            filteredTransactions: transactionData.transactions,
+        }))
     }
 
     const handleSaveTransaction = async (newTransaction) => {
         let result;
-        if (transactionToEdit) {
-            result = await supabaseService.updateTransaction(transactionToEdit, newTransaction);
+        if (transactionData.transactionToEdit) {
+            result = await supabaseService.updateTransaction(transactionData.transactionToEdit, newTransaction);
         } else {
             result = await supabaseService.insertTransaction(newTransaction);
         }
@@ -93,41 +118,59 @@ export const Transactions = () => {
         } else {
             const { data, error } = await supabaseService.fetchTransactions();
             if (!error) {
-                setTransactions(data);
-                setFilteredTransactions(data);
+                setTransactionData((prev) => ({
+                    ...prev,
+                    transactions: data,
+                    filteredTransactions: data,
+                }))
             }
         }
 
-        setTransactionToEdit(null);
-        setIsModalOpen(false);
-        setIsEditModalOpen(false);
+        setTransactionData((prev) => ({ ...prev, transactionToEdit: null }));
+        closeModal("isAddModalOpen");
+        closeModal("isEditModalOpen");
     }
 
-    const handleDeleteTransaction = async (id) => {
-        const result = await supabaseService.deleteTransaction(id);
+    const handleDeleteTransaction = async () => {
+        if (!transactionData.transactionIdToDelete) {
+            return;
+        }
+
+        const result = await supabaseService.deleteTransaction(transactionData.transactionIdToDelete);
 
         if (result.error) {
             console.error('Error deleting transaction:', result.error);
         } else {
             const { data, error } = await supabaseService.fetchTransactions();
             if (!error) {
-                setTransactions(data);
-                setFilteredTransactions(data);
+                setTransactionData((prev) => ({
+                    ...prev,
+                    transactions: data,
+                    filteredTransactions: data,
+                }))
             }
         }
+
+        closeModal("isConfirmationModalOpen");
     }
 
     const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
+        setFilters((prev) => ({ ...prev, searchQuery: event.target.value }));
     }
 
     const handleEditTransaction = (id) => {
-        const transactionToEdit = transactions.find(transaction => transaction.id === id);
-        setTransactionToEdit(transactionToEdit);
-        setIsEditModalOpen(true);
+        const transactionToEdit = transactionData.transactions.find(transaction => transaction.id === id);
+        setTransactionData((prev) => ({ ...prev, transactionToEdit: transactionToEdit }));
+
+        openModal("isEditModalOpen");
     }
 
-    const handleAddTransaction = () => setIsModalOpen(true);
+    const handleAddTransaction = () => openModal("isAddModalOpen");
+
+    const handleConfirmToDelete = (id) => {
+        setTransactionData((prev) => ({ ...prev, transactionIdToDelete: id }));
+        openModal("isConfirmationModalOpen");
+    }
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>My Transactions</h1>
@@ -136,7 +179,7 @@ export const Transactions = () => {
                     <input
                         type="search"
                         placeholder="Search..."
-                        value={searchQuery}
+                        value={filters.searchQuery}
                         onChange={handleSearchChange}
                         className={styles.input}
                     />
@@ -151,23 +194,45 @@ export const Transactions = () => {
             </div>
 
             <TableTransactions
-                transaction={filteredTransactions}
-                noResults={noResults}
-                onTypeFilter={setFilterType}
-                onCategoryFilter={setFilterCategory}
+                transaction={transactionData.filteredTransactions}
+                noResults={status.noResults}
+                onTypeFilter={(newType) =>
+                    setFilters((prev) => ({ ...prev, filterType: newType }))
+                }
+                onCategory={(newCategory) =>
+                    setFilters((prev) => ({ ...prev, filterCategory: newCategory }))
+                }
                 resetFilters={resetFilters}
-                onDelete={handleDeleteTransaction}
+                onDelete={handleConfirmToDelete}
                 onEdit={handleEditTransaction}
-                loading={loading}
+                loading={status.loading}
             />
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
+            <Modal
+                isOpen={modals.isAddModalOpen}
+                onClose={() => closeModal("isAddModalOpen")}
+                title="Add Transaction"
+            >
                 <FormTransaction onSave={handleSaveTransaction} />
             </Modal>
 
-            <Modal isOpen={isEditOpenModal} onClose={() => setIsEditModalOpen(false)} title="Edit Transaction">
-                <FormTransaction onSave={handleSaveTransaction} transaction={transactionToEdit} />
+            <Modal
+                isOpen={modals.isEditModalOpen}
+                onClose={() => closeModal("isEditModalOpen")}
+                title="Edit Transaction"
+            >
+                <FormTransaction onSave={handleSaveTransaction} transaction={transactionData.transactionToEdit} />
             </Modal>
 
+            <Modal
+                isOpen={modals.isConfirmationModalOpen}
+                onClose={() => closeModal("isConfirmationModalOpen")}
+                title="Are you sure you want to delete this transaction?"
+            >
+                <Confirmation
+                    onDelete={handleDeleteTransaction}
+                    onClose={() => closeModal("isConfirmationModalOpen")}
+                />
+            </Modal>
         </div>
     )
 }

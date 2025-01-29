@@ -4,78 +4,88 @@ import styles from "./FormTransaction.module.css";
 import { categories, currencies } from "../../constants";
 
 export const FormTransaction = ({ onSave, transaction }) => {
-    const [date, setDate] = useState(transaction?.date || "");
-    const [amount, setAmount] = useState(transaction?.amount || "");
-    const [type, setType] = useState(transaction?.transaction_type || "");
-    const [category, setCategory] = useState(transaction?.category || "");
-    const [currency, setCurrency] = useState(transaction?.currency || "USD");
-    const [notes, setNotes] = useState(transaction?.notes || "");
+    const [transactionDetails, setTransactionDetails] = useState({
+        date: transaction?.date || "",
+        amount: transaction?.amount || "",
+        type: transaction?.transaction_type || "",
+        category: transaction?.category || "",
+        currency: transaction?.currency || "USD",
+        notes: transaction?.notes || "",
+    });
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [errors, setErrors] = useState({});
-
+    
     const today = new Date().toLocaleDateString('en-CA');
 
     useEffect(() => {
-        if(type) {
-            setFilteredCategories(categories[type])
+        if(transactionDetails.type && categories) {
+            setFilteredCategories(categories[transactionDetails.type] || []);
         }
-    }, [type]);
+    }, [transactionDetails.type, categories]);
 
     useEffect(() => {
         if (transaction) {
-            setDate(transaction.date);
-            setAmount(transaction.amount);
-            setType(transaction.transaction_type);
-            setCategory(transaction.category);
-            setCurrency(transaction.currency);
-            setNotes(transaction.notes || "");
+            setTransactionDetails({
+                date: transaction.date || "",
+                amount: transaction.amount || "",
+                type: transaction.transaction_type || "",
+                category: transaction.category || "",
+                currency: transaction.currency || "USD",
+                notes: transaction.notes || "",
+            });
         }
     }, [transaction]);
 
     const onClear = () => {
-        setDate("");
-        setAmount("");
-        setType("");
-        setCategory("");
-        setCurrency("USD");
-        setNotes("");
+        setTransactionDetails((prev) => ({
+            ...prev,
+            date: "",
+            amount: "",
+            type: "",
+            category: "",
+            currency: "",
+            notes: "",
+        }))
     };
 
     const handleAmountBlur = () => {
-        if (amount) {
-            const number = parseFloat(amount.replace(/,/g, "").replace(/[^0-9.]/g, ""));
+        if (transactionDetails.amount) {
+            const number = parseFloat(transactionDetails.amount.replace(/,/g, "").replace(/[^0-9.]/g, ""));
             const formattedValue = new Intl.NumberFormat('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(number);
-            setAmount(formattedValue);
+            setTransactionDetails((prev) => ({
+                ...prev,
+                amount: formattedValue,
+            }))
         }
     };
     
-    const handleDateChange = (event) => setDate(event.target.value);
-    const handleAmountChange = (event) => setAmount(event.target.value);
-    const handleTypeChange = (event) => setType(event.target.value);
-    const handleCategoryChange = (event) => setCategory(event.target.value);
-    const handleCurrencyChange = (event) => setCurrency(event.target.value);
-    const handleNotesChange = (event) => setNotes(event.target.value);
+    const handleDateChange = (e) => setTransactionDetails((prev) => ({...prev, date: e.target.value}));
+    const handleAmountChange = (e) => setTransactionDetails((prev) => ({...prev, amount: e.target.value}));
+    const handleTypeChange = (e) => setTransactionDetails((prev) => ({...prev, type: e.target.value}));
+    const handleCategoryChange = (e) => setTransactionDetails((prev) => ({...prev, category: e.target.value}));
+    const handleCurrencyChange = (e) => setTransactionDetails((prev) => ({...prev, currency: e.target.value}));
+    const handleNotesChange = (e) => setTransactionDetails((prev) => ({...prev, notes: e.target.value}));
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const validationErrors = {}
 
-        if (!date) {
+        if (!transactionDetails.date) {
             validationErrors.date = "Date is required";
         } 
 
-        if (!type) {
+        if (!transactionDetails.type) {
             validationErrors.type = "Type is required";
         }
 
-        if (!category) {
+        if (!transactionDetails.category) {
             validationErrors.category = "Category is required";
         }
 
-        const amountString = typeof amount === "number" ? amount.toString() : amount;
+        const amountString = typeof transactionDetails.amount === "number" ? transactionDetails.amount.toString() : transactionDetails.amount;
 
         const parsedAmount = parseFloat(amountString.replace(/,/g, "").replace(/[^0-9.]/g, "")); 
         if (isNaN(parsedAmount)) {
@@ -91,12 +101,12 @@ export const FormTransaction = ({ onSave, transaction }) => {
 
         const transactionData = {
             id: transaction?.id, 
-            date, 
-            type,
-            category,
+            date: transactionDetails.date, 
+            type: transactionDetails.type,
+            category: transactionDetails.category,
             amount: parsedAmount,
-            currency,
-            notes,
+            currency: transactionDetails.currency,
+            notes: transactionDetails.notes,
         };
 
         onSave(transactionData);
@@ -111,7 +121,7 @@ export const FormTransaction = ({ onSave, transaction }) => {
                     type="date"
                     name="date"
                     id="date"
-                    value={date}
+                    value={transactionDetails.date}
                     onChange={handleDateChange}
                     max={today}
                     className={styles.input}
@@ -126,7 +136,7 @@ export const FormTransaction = ({ onSave, transaction }) => {
                     type="text" 
                     name="amount"
                     id="amount"
-                    value={amount}
+                    value={transactionDetails.amount}
                     onChange={handleAmountChange}
                     onBlur={handleAmountBlur}
                     placeholder="200"
@@ -138,7 +148,7 @@ export const FormTransaction = ({ onSave, transaction }) => {
 
             <div className={styles.field}>
                 <label htmlFor="type">Type</label>
-                <select className={styles.select} name="type" id="type" value={type || ""} onChange={handleTypeChange}>
+                <select className={styles.select} name="type" id="type" value={transactionDetails.type || ""} onChange={handleTypeChange}>
                     <option value="" disabled>select</option>
                     <option value="income">income</option>
                     <option value="expense">expense</option>
@@ -149,9 +159,9 @@ export const FormTransaction = ({ onSave, transaction }) => {
 
             <div className={styles.field}>
                 <label htmlFor="category">Category</label>
-                <select className={styles.select} name="category" id="category" value={category} onChange={handleCategoryChange}>
+                <select className={styles.select} name="category" id="category" value={transactionDetails.category} onChange={handleCategoryChange}>
                     <option value="" disabled>select</option>
-                    {filteredCategories.map((cat, index) => (
+                    {filteredCategories?.map((cat, index) => (
                         <option key={index} value={cat}>{cat}</option>
                     ))}
                 </select>
@@ -161,8 +171,8 @@ export const FormTransaction = ({ onSave, transaction }) => {
 
             <div className={styles.field}>
                 <label htmlFor="currency">Currency</label>
-                <select className={styles.select} name="currency" id="currency" value={currency} onChange={handleCurrencyChange}>
-                    {currencies.map((curr, index) => (
+                <select className={styles.select} name="currency" id="currency" value={transactionDetails.currency} onChange={handleCurrencyChange}>
+                    {currencies?.map((curr, index) => (
                         <option key={index} value={curr}>{curr}</option>
                     ))}
                 </select>
@@ -173,7 +183,7 @@ export const FormTransaction = ({ onSave, transaction }) => {
                 <textarea 
                     name="notes"
                     id="notes"
-                    value={notes} 
+                    value={transactionDetails.notes} 
                     onChange={handleNotesChange} 
                     className={styles.textarea}
                     placeholder="Add any notes (optional)">

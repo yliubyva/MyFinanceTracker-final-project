@@ -3,12 +3,9 @@ import styles from "./Modal.module.css";
 import CloseIcon from "../../assets/Close.svg?react";
 
 export const Modal = ({ title, children, isOpen, onClose }) => {
-    if(!isOpen) {
-        return null;
-    }
     return (
-        <div className={`${styles.modal} ${isOpen ? styles.displayBlock : styles.displayNone}`}>
-            <div className={styles.modalMain}>
+        <div className={`${styles.backdrop} ${isOpen ? styles.displayBlock : styles.displayNone}`}>
+            <div className={styles.modal}>
                 <div className={styles.head}>
                     <p>{title}</p>
                     <button className={styles.button} onClick={onClose}>

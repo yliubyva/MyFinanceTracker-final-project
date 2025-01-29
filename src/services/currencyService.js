@@ -2,6 +2,8 @@ class CurrencyService {
     constructor() {
         this.apiUrl = `https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_CURRENCY_API_KEY}/latest/USD`;
         this.exchangeRates = null;
+
+        this.fetchExchangeRates().catch(error => console.error("Failed to load exchange rates:", error));
     }
 
     async fetchExchangeRates() {
@@ -12,7 +14,7 @@ class CurrencyService {
                 this.exchangeRates = data.conversion_rates;
             } catch (error) {
                 console.error("Error fetching exchange rates:", error);
-                throw new Error("Faailed to fetch exchange rates");
+                throw new Error("Failed to fetch exchange rates");
             }
         }
         return this.exchangeRates;
@@ -20,7 +22,7 @@ class CurrencyService {
 
     convertCurrency(amount, fromCurrency, toCurrency) {
         if (!this.exchangeRates || !this.exchangeRates[fromCurrency] || !this.exchangeRates[toCurrency]) {
-            throw new Error("Exchange rates not loaded or invalid carrency");
+            throw new Error("Exchange rates not loaded or invalid currency");
         }
 
         if (fromCurrency === toCurrency) {
